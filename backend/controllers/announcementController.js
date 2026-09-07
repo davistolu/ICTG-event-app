@@ -3,6 +3,7 @@ import Announcement, {
 } from "../models/Announcement.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { getPagination, buildSearchFilter } from "../utils/queryHelpers.js";
+import { SecurityEvents, logSecurityEvent } from "../utils/securityLogger.js";
 
 // GET /api/announcements
 // Query params: search, category, includeExpired, page, limit
@@ -14,7 +15,7 @@ export const getAnnouncements = asyncHandler(async (req, res) => {
     ...buildSearchFilter(search, ["title", "body"]),
   };
 
-  if (category && ANNOUNCEMENT_CATEGORIES.includes(category)) {
+  if (category && typeof category === "string" && ANNOUNCEMENT_CATEGORIES.includes(category)) {
     filter.category = category;
   }
 
@@ -24,9 +25,7 @@ export const getAnnouncements = asyncHandler(async (req, res) => {
       { expiryDate: null },
       { expiryDate: { $gte: new Date() } },
     ];
-    // buildSearchFilter may already have set $or for text search; merge both
-    // conditions so neither is silently dropped.
-    if (search && search.trim()) {
+    if (search && typeof search === "string" && search.trim()) {
       const searchOr = buildSearchFilter(search, ["title", "body"]).$or;
       filter.$and = [{ $or: searchOr }, { $or: filter.$or }];
       delete filter.$or;
@@ -53,7 +52,7 @@ export const getAnnouncements = asyncHandler(async (req, res) => {
 
 // GET /api/announcements/recent (small helper used by the homepage)
 export const getRecentAnnouncements = asyncHandler(async (req, res) => {
-  const limit = Math.min(parseInt(req.query.limit, 10) || 4, 12);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 4, 1), 12);
   const announcements = await Announcement.find({
     $or: [{ expiryDate: null }, { expiryDate: { $gte: new Date() } }],
   })
@@ -75,7 +74,10 @@ export const getAnnouncementById = asyncHandler(async (req, res) => {
 
 // POST /api/announcements
 export const createAnnouncement = asyncHandler(async (req, res) => {
-  const announcementData = { ...req.body };
+  // Use sanitized whitelist payload from validation middleware (Mass Assignment Prevention)
+  const announcementData = { ...(req.cleanBody || req.body) };
+
+  // createdBy is strictly set from authenticated admin session
   if (req.admin) {
     announcementData.createdBy = {
       id: req.admin.id,
@@ -85,20 +87,30 @@ export const createAnnouncement = asyncHandler(async (req, res) => {
       department: req.admin.department || "ICT Group",
     };
   }
+
   const announcement = await Announcement.create(announcementData);
+  logSecurityEvent(SecurityEvents.ANNOUNCEMENT_CREATED, { announcementId: announcement._id, title: announcement.title }, req);
   res.status(201).json({ success: true, data: announcement });
 });
 
 // PUT /api/announcements/:id
 export const updateAnnouncement = asyncHandler(async (req, res) => {
-  const announcement = await Announcement.findByIdAndUpdate(req.params.id, req.body, {
+  const updatePayload = { ...(req.cleanBody || {}) };
+
+  // Explicitly prevent client from overwriting createdBy author metadata
+  delete updatePayload.createdBy;
+
+  const announcement = await Announcement.findByIdAndUpdate(req.params.id, updatePayload, {
     new: true,
     runValidators: true,
   });
+
   if (!announcement) {
     res.status(404);
     throw new Error("Announcement not found");
   }
+
+  logSecurityEvent(SecurityEvents.ANNOUNCEMENT_UPDATED, { announcementId: announcement._id, title: announcement.title }, req);
   res.json({ success: true, data: announcement });
 });
 
@@ -109,5 +121,8 @@ export const deleteAnnouncement = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Announcement not found");
   }
-  res.json({ success: true, data: {} });
+
+  logSecurityEvent(SecurityEvents.ANNOUNCEMENT_DELETED, { announcementId: req.params.id, title: announcement.title }, req);
+  res.json({ success: true, data: {}, message: "Announcement deleted successfully" });
 });
+

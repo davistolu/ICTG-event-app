@@ -23,10 +23,18 @@ client.interceptors.request.use((config) => {
 
 // Normalizes every failure into a plain Error with a message the UI can show
 // directly, whether it came from the API's JSON error body, a network drop,
-// or a timeout.
+// or a timeout. Also clears invalid/expired tokens on 401.
 client.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      try {
+        localStorage.removeItem("admin_token");
+      } catch (e) {
+        // ignore localStorage error in constrained environment
+      }
+    }
+
     const message =
       error.response?.data?.message ||
       (error.code === "ECONNABORTED"
