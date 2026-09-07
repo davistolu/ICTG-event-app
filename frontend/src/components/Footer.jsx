@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Megaphone, Shield, Heart } from "lucide-react";
+import { Calendar, Megaphone, Shield, Heart, } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();

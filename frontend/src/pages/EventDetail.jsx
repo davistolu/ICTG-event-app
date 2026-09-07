@@ -85,13 +85,12 @@ export default function EventDetail() {
             {/* Category & Action row */}
             <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/60">
-                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-1 rounded-md border border-red-100">
                   {event.category}
                 </span>
                 {event.isFeatured && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-200">
-                    Featured Session
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                    Featured
                   </span>
                 )}
               </div>
@@ -123,6 +122,21 @@ export default function EventDetail() {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {event.title}
             </h1>
+
+            {/* Event Hero Cover Image */}
+            {event.imageUrl && (
+              <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs">
+                <img
+                  src={event.imageUrl}
+                  alt={event.title}
+                  onError={(e) => {
+                    e.currentTarget.parentElement.style.display = "none";
+                  }}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
 
             {/* Live Countdown */}
             {!countdown.isPast ? (
