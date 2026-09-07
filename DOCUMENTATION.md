@@ -23,33 +23,35 @@ ictg-events-portal/
 │   ├── config/
 │   │   └── db.js                    # Mongoose MongoDB connection & configuration
 │   ├── controllers/
-│   │   ├── announcementController.js# Announcement CRUD logic + author tracking
-│   │   └── eventController.js       # Event CRUD logic + author tracking
+│   │   ├── announcementController.js# Sanitized Announcement CRUD logic + author tracking
+│   │   └── eventController.js       # Sanitized Event CRUD logic + author tracking
 │   ├── middleware/
 │   │   ├── asyncHandler.js          # Promise-based wrapper eliminating try/catch blocks
-│   │   ├── auth.js                  # JWT token verification + RBAC role enforcement
-│   │   ├── errorHandler.js          # Centralized JSON error responder
-│   │   └── notFound.js              # Catch-all 404 handler
+│   │   ├── auth.js                  # JWT signature & tokenVersion session revocation + RBAC
+│   │   ├── errorHandler.js          # Centralized JSON error responder with production masking
+│   │   ├── notFound.js              # Catch-all 404 handler
+│   │   └── validate.js              # Input validation, schema whitelisting & URI sanitization
 │   ├── models/
-│   │   ├── Admin.js                 # Admin user schema, password hashing, and role enum
+│   │   ├── Admin.js                 # Admin user schema, password hashing, tokenVersion & regex
 │   │   ├── Announcement.js          # Circular schema with priority, pinning, and author metadata
 │   │   └── Event.js                 # Event schema with categories, dates, cover image, and metadata
 │   ├── routes/
 │   │   ├── announcementRoutes.js    # Routes for /api/announcements (public read, role-gated write)
-│   │   ├── authRoutes.js            # Routes for /api/admin (login, profile, user management)
+│   │   ├── authRoutes.js            # Routes for /api/admin (login with rate-limiting, user mgmt)
 │   │   └── eventRoutes.js           # Routes for /api/events (public read, role-gated write)
 │   ├── seed/
 │   │   └── seed.js                  # Database seeder with sample events, notices, and Super Admin
 │   ├── utils/
-│   │   └── queryHelpers.js          # Pagination and text search query builders
+│   │   ├── queryHelpers.js          # ReDoS-safe pagination & sanitized search query builders
+│   │   └── securityLogger.js        # Structured security audit logger with payload redaction
 │   ├── package.json                 # Backend dependencies & script definitions
-│   └── server.js                    # Express application entry point & middleware setup
+│   └── server.js                    # Express app entry point, Helmet CSP, & Rate Limiters
 │
 ├── frontend/                        # React 18 Single Page Application (SPA)
 │   ├── public/                      # Static web assets
 │   ├── src/
 │   │   ├── api/                     # Axios API clients & endpoint abstraction
-│   │   │   ├── client.js            # Base Axios instance with Bearer token interceptor
+│   │   │   ├── client.js            # Base Axios instance with Bearer token & 401 interceptor
 │   │   │   ├── events.js            # Event API endpoints & category constants
 │   │   │   └── announcements.js     # Announcement API endpoints & category constants
 │   │   ├── components/              # Reusable UI presentation & container components
@@ -103,53 +105,48 @@ ictg-events-portal/
 - **Vite 5**: Rapid build tool and development server providing Instant HMR (Hot Module Replacement) and optimized production bundles.
 - **Tailwind CSS 3**: Utility-first styling framework customized for a strict **Obsidian Black (`slate-950`)** and **Signature Red (`#DC2626`)** aesthetic.
 - **React Router DOM v6**: Declarative client-side routing with parameter handling (`useParams`) and programmatic navigation.
-- **Axios**: Promise-based HTTP client equipped with request interceptors for automated JWT injection.
+- **Axios**: Promise-based HTTP client equipped with request interceptors for automated JWT injection and 401 response handling.
 - **Lucide React**: Clean, lightweight icon suite for all user interface symbols.
 
 ### Backend Stack
 - **Node.js & Express.js (ES Modules)**: Lightweight, asynchronous runtime powering the RESTful API service.
 - **MongoDB & Mongoose 8**: Document database with strict schema modeling, validations, timestamps, and indexes.
-- **JSON Web Tokens (`jsonwebtoken`)**: Stateless authentication mechanism using signed JWT tokens.
-- **Bcrypt (`bcryptjs`)**: Cryptographic salt-and-hash algorithm for admin password security.
-- **Express Middleware Suite**:
-  - `cors`: Cross-Origin Resource Sharing whitelist configuration.
-  - `express-mongo-sanitize`: Sanitization of request inputs against NoSQL query injection.
-  - `dotenv`: Environment variable management.
+- **JSON Web Tokens (`jsonwebtoken`)**: Stateless authentication mechanism using signed JWT tokens with algorithm locking (`HS256`) and `tokenVersion` revocation.
+- **Bcrypt (`bcryptjs`)**: Cryptographic salt-and-hash algorithm with asynchronous execution (work factor 12).
+- **Security & Middleware Suite**:
+  - `helmet`: Comprehensive HTTP security headers (CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options).
+  - `express-rate-limit`: Multi-tiered IP rate limiters (global API, auth brute-force, mutation limiter).
+  - `express-mongo-sanitize`: Sanitization of request inputs against NoSQL query operator injection.
+  - `validator`: Robust input validation and string sanitization.
+  - `dotenv`: Environment variable management with production fail-closed security assertions.
 
 ---
 
 ## 4. Key Technical Decisions
 
-### 4.1. Stateless JWT Authentication with 3-Tier RBAC
+### 4.1. Stateless JWT Authentication with 3-Tier RBAC & Token Invalidation
 - **Decision**: Authenticate administrators via stateless signed JSON Web Tokens (JWT) stored in browser `localStorage` and sent via `Authorization: Bearer <token>` headers.
 - **Role Hierarchy**:
   - **Super Admin**: Unrestricted privileges (create, edit, delete, invite all admin roles, manage system accounts).
   - **Admin**: Full content management (create, edit, delete) and delegation rights (can add/manage *Admins* and *Editors*).
   - **Editor**: Content publishing and editing privileges without deletion or team administration rights.
-- **Implementation**: Enforced through reusable backend middleware:
-  - `protect`: Verifies token signature and attaches the active `Admin` document to `req.admin`.
-  - `requireRole(...allowedRoles)`: Gates sensitive endpoints (e.g. `DELETE /api/events/:id` or `POST /api/admin/users`).
+- **Active Invalidation**: Every user record holds a `tokenVersion` integer incremented whenever passwords or roles are modified, immediately revoking all issued JWTs without maintaining server-side token state.
 
-### 4.2. Embedded Author Attribution Snapshots
-- **Decision**: When an administrator creates an event or notice, store an immutable snapshot of their profile (`id`, `username`, `name`, `role`, `department`) directly within the `createdBy` subdocument of the record.
+### 4.2. Strict Input Whitelisting (Zero Mass Assignment)
+- **Decision**: Controllers strictly reject raw `req.body` and only accept fields passed through `validateEventInput` and `validateAnnouncementInput` via `req.cleanBody`.
+- **Rationale**: Completely eliminates mass-assignment vulnerabilities where malicious users could inject arbitrary fields (e.g. overwriting `createdBy`, `_id`, or `createdAt`).
+
+### 4.3. Embedded Author Attribution Snapshots
+- **Decision**: When an administrator creates an event or notice, store an immutable snapshot of their profile (`id`, `username`, `name`, `role`, `department`) directly within the `createdBy` subdocument of the record, enforced server-side from `req.admin`.
 - **Rationale**: Avoids costly database `$lookup` joins on frequently queried public listings while preserving historical author records even if an admin account is modified or removed.
 
-### 4.3. Privacy-Preserving Public Projection
+### 4.4. Privacy-Preserving Public Projection
 - **Decision**: Public-facing cards and detail pages only display the organizing department or unit (e.g. *AV & Broadcast*, *Software & Systems*), keeping individual administrator names visible only within the authenticated `/admin` control console.
 - **Rationale**: Protects administrative privacy from public scraping while maintaining internal accountability and auditability.
 
-### 4.4. Payload Expansion for Device Media Uploads
+### 4.5. Payload Expansion for Device Media Uploads with Protocol Sanitization
 - **Decision**: Configured Express body parser limits to `15mb` (`express.json({ limit: "15mb" })`) and added browser-side `FileReader` Data URL conversion in conjunction with standard URL support.
-- **Rationale**: Allows administrators to upload artwork directly from local devices without requiring external S3 bucket setup, while still supporting external CDN URLs (e.g. Unsplash).
-
-### 4.5. Universal Calendar Interoperability
-- **Decision**: Implemented client-side calendar generator utilities (`calendarHelpers.js`):
-  - Google Calendar direct URL generator with URL-encoded date ranges and descriptions.
-  - RFC 5545 compliant `.ics` iCalendar file generator with dynamic Blob creation and download trigger for Apple Calendar, Microsoft Outlook, and mobile calendar apps.
-
-### 4.6. Local-First Bookmarks & Offline Drawer
-- **Decision**: Integrated `BookmarksContext.jsx` backed by browser `localStorage`.
-- **Rationale**: Church members can bookmark events and circulars instantly without requiring user account registration or network round-trips.
+- **Security**: Strictly validates all image inputs to allow only `http://`, `https://`, or safe base64 Data URLs (`data:image/(png|jpeg|jpg|webp|gif);base64,...`), completely blocking `javascript:` and dangerous URI schemes.
 
 ---
 
@@ -224,12 +221,14 @@ ictg-events-portal/
 ### Admin Schema (`backend/models/Admin.js`)
 ```javascript
 {
-  username: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  username: { type: String, required: true, unique: true, lowercase: true, trim: true, minlength: 3, maxlength: 30 },
   passwordHash: { type: String, required: true },
-  name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
+  tokenVersion: { type: Number, default: 0 },
+  passwordChangedAt: { type: Date, default: Date.now },
+  name: { type: String, required: true, trim: true, maxlength: 100 },
+  email: { type: String, trim: true, lowercase: true, default: "" },
   role: { type: String, enum: ["Super Admin", "Admin", "Editor"], default: "Admin" },
-  department: { type: String, default: "ICT Group", trim: true }
+  department: { type: String, default: "ICT Group", trim: true, maxlength: 100 }
 }
 ```
 
@@ -238,7 +237,7 @@ ictg-events-portal/
 ## 7. REST API Endpoints
 
 ### Authentication & Admin (`/api/admin`)
-- `POST /api/admin/login` - Authenticates user credentials and returns signed JWT token.
+- `POST /api/admin/login` - Authenticates user credentials and returns signed JWT token. [Rate limited: 10 req / 15 min]
 - `GET /api/admin/me` - Returns profile of the authenticated administrator.
 - `GET /api/admin/users` - Lists all registered administrative accounts (*Authenticated*).
 - `POST /api/admin/users` - Creates a new administrator/editor account (*Super Admin / Admin*).
@@ -276,3 +275,25 @@ ictg-events-portal/
 | Delete Events & Notices | ❌ | ❌ | ✅ | ✅ |
 | Register New Admin Accounts | ❌ | ❌ | ✅ (*Admin/Editor*) | ✅ (*Any Role*) |
 | Manage / Delete Admin Accounts | ❌ | ❌ | ✅ (*Editors only*) | ✅ (*All accounts*) |
+
+---
+
+## 9. Security Engineering & Defense-in-Depth
+
+### 9.1. Threat Modeling & Attack Surface Hardening
+| Vector / Vulnerability | Threat Description | Defense Implemented |
+| :--- | :--- | :--- |
+| **Credential Brute Force** | Dictionary / credential stuffing attacks against `/api/admin/login` | IP-based Rate Limiting (10 req/15 min) + Constant-time dummy hash verification for non-existent users. |
+| **Mass Assignment** | Malicious insertion of unauthorized schema fields (e.g. `createdBy`, `_id`) | Schema whitelisting in `validate.js` outputting cleaned objects (`req.cleanBody`). |
+| **Timing Attacks** | User enumeration via bcrypt execution time difference | Always computes `bcrypt.compare` using a precomputed dummy hash even when user is not found. |
+| **NoSQL Injection** | Operator injection via malicious JSON payload (`{"$ne": ""}`) | `express-mongo-sanitize` strips `$` and `.` operators on all incoming payloads. |
+| **Stored / Reflected XSS** | Injected JavaScript via `imageUrl` or body HTML tags | Whitelisted image protocols (`http:`, `https:`, `data:image/...`), strict input length caps, and React automatic escaping. |
+| **ReDoS** | Regex catastrophic backtracking in search endpoints | Regex escaping of all meta-characters (`sanitizeRegex`) and length limits (max 80 chars). |
+| **Privilege Escalation** | Unauthorized token usage or modifying higher-tier roles | Explicit role hierarchy enforcement in `authRoutes.js` preventing Admins from modifying Super Admins. |
+| **Stale Session Abuse** | Using valid tokens after credentials or roles are revoked | `tokenVersion` verification on every protected request; revokes all sessions on password/role update. |
+| **Clickjacking & MIME Sniffing** | Framing or MIME-type confusion attacks | Helmet headers: `frameAncestors: ["'none'"]`, `X-Content-Type-Options: nosniff`, and strict CSP. |
+| **Information Disclosure** | Stack traces or raw database CastErrors reflected in API responses | Production error masking in `errorHandler.js` returning sanitized errors without stack traces. |
+
+### 9.2. Security Audit Logging
+Structured, production-ready logging in `backend/utils/securityLogger.js` logs all critical security events (`AUTH_LOGIN_SUCCESS`, `AUTH_LOGIN_FAILURE`, `AUTH_PERMISSION_DENIED`, `EVENT_DELETED`, `RATE_LIMIT_EXCEEDED`, etc.) with IP addresses and user agents, while strictly sanitizing sensitive fields (`password`, `token`, `passwordHash`).
+

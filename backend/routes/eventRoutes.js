@@ -8,17 +8,22 @@ import {
   deleteEvent,
 } from "../controllers/eventController.js";
 import auth, { requireRole } from "../middleware/auth.js";
+import { validateMongoId, validateEventInput } from "../middleware/validate.js";
 
 const router = Router();
 
 router.get("/featured", getFeaturedEvents);
 
-router.route("/").get(getEvents).post(auth, createEvent);
+router
+  .route("/")
+  .get(getEvents)
+  .post(auth, validateEventInput(false), createEvent);
 
 router
   .route("/:id")
-  .get(getEventById)
-  .put(auth, updateEvent)
-  .delete(auth, requireRole("Super Admin", "Admin"), deleteEvent);
+  .get(validateMongoId("id"), getEventById)
+  .put(auth, validateMongoId("id"), validateEventInput(true), updateEvent)
+  .delete(auth, requireRole("Super Admin", "Admin"), validateMongoId("id"), deleteEvent);
 
 export default router;
+
