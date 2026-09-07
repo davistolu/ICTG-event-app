@@ -124,6 +124,21 @@ export default function EventDetail() {
               {event.title}
             </h1>
 
+            {/* Event Hero Cover Image */}
+            {event.imageUrl && (
+              <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs">
+                <img
+                  src={event.imageUrl}
+                  alt={event.title}
+                  onError={(e) => {
+                    e.currentTarget.parentElement.style.display = "none";
+                  }}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
+
             {/* Live Countdown */}
             {!countdown.isPast ? (
               <div className="p-5 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">

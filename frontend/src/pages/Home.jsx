@@ -139,6 +139,20 @@ export default function Home() {
                     </span>
                   </div>
 
+                  {nextEvent.imageUrl && (
+                    <div className="w-full h-40 sm:h-44 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                      <img
+                        src={nextEvent.imageUrl}
+                        alt={nextEvent.title}
+                        onError={(e) => {
+                          e.currentTarget.parentElement.style.display = "none";
+                        }}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+
                   <Link to={`/events/${nextEvent._id}`} className="block group">
                     <h3 className="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-red-600 transition-colors line-clamp-2">
                       {nextEvent.title}
