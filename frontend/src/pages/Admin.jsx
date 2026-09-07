@@ -408,51 +408,52 @@ export default function Admin() {
   return (
     <div className="mx-auto max-w-content px-4 py-8 sm:px-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-red-50 text-red-600 text-xs font-bold uppercase tracking-wider border border-red-100">
-            <Shield size={12} />
-            <span>Secretariat Command Center</span>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              ICTG Administration
+            </h1>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+              Control Console
+            </span>
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-1.5">
-            Admin Portal Management
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Full management console to schedule events, publish bulletins, update records, and configure site announcements.
+          <p className="mt-1 text-xs sm:text-sm text-slate-500">
+            Manage church event schedules, publish circulars, and configure team access.
           </p>
         </div>
 
         {token && (
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             {currentAdmin && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 text-white border border-slate-800 text-xs shadow-2xs">
-                <div className="h-6 w-6 rounded-lg bg-red-600 flex items-center justify-center font-bold text-[11px] text-white">
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs shadow-2xs">
+                <div className="h-6 w-6 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-[10px]">
                   {currentAdmin.name ? currentAdmin.name.charAt(0).toUpperCase() : "A"}
                 </div>
-                <div className="text-left">
-                  <div className="font-bold text-white leading-tight">{currentAdmin.name}</div>
-                  <div className="text-[10px] text-red-400 font-semibold uppercase tracking-wider">
+                <div>
+                  <span className="font-semibold text-slate-900 block leading-tight">{currentAdmin.name}</span>
+                  <span className="text-[10px] text-slate-500 block leading-tight">
                     {currentAdmin.role || "Admin"} • {currentAdmin.department || "ICT Group"}
-                  </div>
+                  </span>
                 </div>
               </div>
             )}
 
             <button
               onClick={loadAllData}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors shadow-2xs"
+              className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-2xs"
               title="Refresh data"
+              aria-label="Refresh dashboard data"
             >
-              <RefreshCw size={13} className={dataLoading ? "animate-spin" : ""} />
-              <span className="hidden sm:inline">Refresh</span>
+              <RefreshCw size={14} className={dataLoading ? "animate-spin" : ""} />
             </button>
 
             <button
               onClick={logout}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-semibold transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-red-600 text-xs font-semibold transition-colors shadow-2xs"
             >
               <LogOut size={13} />
-              <span>Logout</span>
+              <span>Log out</span>
             </button>
           </div>
         )}
@@ -460,14 +461,14 @@ export default function Admin() {
 
       {/* LOGIN CARD IF NOT AUTHENTICATED */}
       {!token ? (
-        <div className="mx-auto max-w-md bg-white border border-slate-200/90 rounded-3xl p-8 shadow-sm space-y-6">
+        <div className="mx-auto max-w-md bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm space-y-6">
           <div className="text-center space-y-2">
-            <div className="mx-auto h-12 w-12 rounded-2xl bg-slate-950 text-red-500 flex items-center justify-center shadow-xs">
-              <Lock size={22} />
+            <div className="mx-auto h-11 w-11 rounded-xl bg-slate-950 text-white flex items-center justify-center shadow-xs">
+              <Lock size={20} />
             </div>
             <h2 className="text-xl font-bold text-slate-900">Admin Authentication</h2>
             <p className="text-xs text-slate-500">
-              Enter your authorized credentials to access the management tools.
+              Sign in with your administrator credentials to access the console.
             </p>
           </div>
 
@@ -509,183 +510,191 @@ export default function Admin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-slate-950 hover:bg-red-600 text-white font-semibold text-xs transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-semibold text-xs transition-colors shadow-sm disabled:opacity-50"
             >
-              {loading ? "Authenticating…" : "Sign In to Admin Console"}
+              {loading ? "Authenticating…" : "Sign in to Dashboard"}
             </button>
           </form>
         </div>
       ) : (
         /* AUTHENTICATED ADMIN DASHBOARD */
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Top Metrics Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Scheduled Events</span>
-                <Calendar size={16} className="text-red-600" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                Scheduled Events
+              </span>
+              <div className="text-2xl font-bold text-slate-900">
                 {metrics.totalEvents}
               </div>
-              <div className="text-[11px] text-slate-500 font-medium">
+              <div className="text-xs text-slate-500">
                 {metrics.upcomingEvents} upcoming • {metrics.featuredEvents} featured
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Live Bulletins</span>
-                <Megaphone size={16} className="text-red-600" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900">
+            <div className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                Active Bulletins
+              </span>
+              <div className="text-2xl font-bold text-slate-900">
                 {metrics.totalAnnouncements}
               </div>
-              <div className="text-[11px] text-slate-500 font-medium">
+              <div className="text-xs text-slate-500">
                 {metrics.urgentNotices} urgent • {metrics.pinnedNotices} pinned
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Secretariat Admins</span>
-                <Users size={16} className="text-red-600" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900">
+            <div className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                Admin Team
+              </span>
+              <div className="text-2xl font-bold text-slate-900">
                 {adminsList.length || 1}
               </div>
-              <div className="text-[11px] text-slate-500 font-medium">
-                Active admin accounts
+              <div className="text-xs text-slate-500">
+                Authorized accounts
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">System Status</span>
-                <Activity size={16} className="text-emerald-500" />
+            <div className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                System Status
+              </span>
+              <div className="flex items-center gap-2 pt-0.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-lg font-bold text-slate-900">Operational</span>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-emerald-600">
-                Active
-              </div>
-              <div className="text-[11px] text-slate-500 font-medium">
-                {currentAdmin ? `Logged in as ${currentAdmin.name}` : "API connected & ready"}
+              <div className="text-xs text-slate-500">
+                API connected &amp; synced
               </div>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === "overview"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              Control Overview
-            </button>
+          {/* Navigation Bar & Primary Action Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            {/* Tabs */}
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold overflow-x-auto">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
+                  activeTab === "overview"
+                    ? "bg-white text-slate-900 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Overview
+              </button>
 
-            <button
-              onClick={() => setActiveTab("events")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === "events"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              Manage Events ({eventsList.length})
-            </button>
+              <button
+                onClick={() => setActiveTab("events")}
+                className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
+                  activeTab === "events"
+                    ? "bg-white text-slate-900 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Events ({eventsList.length})
+              </button>
 
-            <button
-              onClick={() => setActiveTab("announcements")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === "announcements"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              Manage Announcements ({announcementsList.length})
-            </button>
+              <button
+                onClick={() => setActiveTab("announcements")}
+                className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
+                  activeTab === "announcements"
+                    ? "bg-white text-slate-900 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Announcements ({announcementsList.length})
+              </button>
 
-            <button
-              onClick={() => setActiveTab("admins")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 ${
-                activeTab === "admins"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              <Users size={13} />
-              <span>Admin Team ({adminsList.length})</span>
-            </button>
+              <button
+                onClick={() => setActiveTab("admins")}
+                className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap flex items-center gap-1 ${
+                  activeTab === "admins"
+                    ? "bg-white text-slate-900 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>Admins ({adminsList.length})</span>
+              </button>
+            </div>
 
-            <button
-              onClick={() => setActiveTab("create-event")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 ${
-                activeTab === "create-event"
-                  ? "bg-red-600 text-white shadow-xs"
-                  : "bg-white text-red-600 hover:bg-red-50 border border-red-200"
-              }`}
-            >
-              <Plus size={14} />
-              <span>Schedule Event</span>
-            </button>
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveTab("create-event")}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-xs ${
+                  activeTab === "create-event"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-900 hover:bg-slate-800 text-white"
+                }`}
+              >
+                <Plus size={14} />
+                <span>Schedule Event</span>
+              </button>
 
-            <button
-              onClick={() => setActiveTab("create-announcement")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 ${
-                activeTab === "create-announcement"
-                  ? "bg-red-600 text-white shadow-xs"
-                  : "bg-white text-red-600 hover:bg-red-50 border border-red-200"
-              }`}
-            >
-              <Plus size={14} />
-              <span>Publish Notice</span>
-            </button>
+              <button
+                onClick={() => setActiveTab("create-announcement")}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-2xs ${
+                  activeTab === "create-announcement"
+                    ? "bg-slate-900 text-white"
+                    : "bg-white hover:bg-slate-50 border border-slate-200 text-slate-800"
+                }`}
+              >
+                <Plus size={14} />
+                <span>Publish Notice</span>
+              </button>
+            </div>
           </div>
 
           {/* TAB 1: OVERVIEW DASHBOARD */}
           {activeTab === "overview" && (
-            <div className="grid gap-8 lg:grid-cols-12">
-              {/* Quick Actions & Recent Events */}
-              <div className="lg:col-span-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900">Recent Scheduled Events</h3>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Recent Events Card */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar size={15} className="text-slate-500" />
+                    <h3 className="text-sm font-bold text-slate-900">Recent Scheduled Events</h3>
+                  </div>
                   <button
                     onClick={() => setActiveTab("events")}
-                    className="text-xs font-semibold text-red-600 hover:text-red-700"
+                    className="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors"
                   >
-                    View All →
+                    View all ({eventsList.length}) →
                   </button>
                 </div>
 
-                <div className="space-y-3">
-                  {eventsList.slice(0, 4).map((ev) => (
+                <div className="divide-y divide-slate-100">
+                  {eventsList.slice(0, 5).map((ev) => (
                     <div
                       key={ev._id}
-                      className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between gap-4 shadow-2xs hover:border-slate-300 transition-all"
+                      className="p-3.5 hover:bg-slate-50/80 transition-colors flex items-center justify-between gap-3"
                     >
-                      <div className="min-w-0 space-y-1">
+                      <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100">
                             {ev.category}
                           </span>
                           {ev.isFeatured && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                               Featured
                             </span>
                           )}
+                          <span className="text-xs font-semibold text-slate-900 truncate">
+                            {ev.title}
+                          </span>
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900 truncate">{ev.title}</h4>
+
                         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
                           <span className="flex items-center gap-1">
-                            <Clock size={12} className="text-slate-400" />
+                            <Clock size={11} className="text-slate-400" />
                             {formatDateTime(ev.startDate)}
                           </span>
                           {ev.createdBy?.name && (
-                            <span className="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded font-medium">
-                              By: {ev.createdBy.name} ({ev.createdBy.department || "ICTG"})
+                            <span className="text-[11px] text-slate-400">
+                              • By {ev.createdBy.name} ({ev.createdBy.department || "ICTG"})
                             </span>
                           )}
                         </div>
@@ -694,65 +703,77 @@ export default function Admin() {
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => setEditingEvent({ ...ev })}
-                          className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                          className="p-1.5 rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                           title="Edit Event"
                         >
-                          <Edit2 size={14} />
+                          <Edit2 size={13} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmItem({ type: "event", id: ev._id, title: ev.title })}
-                          className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                          className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                           title="Delete Event"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
                   ))}
+
+                  {eventsList.length === 0 && (
+                    <div className="p-8 text-center text-xs text-slate-500">
+                      No scheduled events yet.
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Recent Announcements */}
-              <div className="lg:col-span-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900">Recent Bulletins &amp; Notices</h3>
+              {/* Recent Bulletins Card */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Megaphone size={15} className="text-slate-500" />
+                    <h3 className="text-sm font-bold text-slate-900">Recent Bulletins &amp; Notices</h3>
+                  </div>
                   <button
                     onClick={() => setActiveTab("announcements")}
-                    className="text-xs font-semibold text-red-600 hover:text-red-700"
+                    className="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors"
                   >
-                    View All →
+                    View all ({announcementsList.length}) →
                   </button>
                 </div>
 
-                <div className="space-y-3">
-                  {announcementsList.slice(0, 4).map((an) => (
+                <div className="divide-y divide-slate-100">
+                  {announcementsList.slice(0, 5).map((an) => (
                     <div
                       key={an._id}
-                      className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between gap-4 shadow-2xs hover:border-slate-300 transition-all"
+                      className="p-3.5 hover:bg-slate-50/80 transition-colors flex items-center justify-between gap-3"
                     >
-                      <div className="min-w-0 space-y-1">
+                      <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                             {an.category}
                           </span>
                           {an.priority === "High" && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
                               Urgent
                             </span>
                           )}
                           {an.isPinned && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                               <Pin size={9} className="fill-slate-900" />
                               Pinned
                             </span>
                           )}
+                          <span className="text-xs font-semibold text-slate-900 truncate">
+                            {an.title}
+                          </span>
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900 truncate">{an.title}</h4>
+
                         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
                           <span>{formatRelativeToNow(an.publishDate)}</span>
                           {an.createdBy?.name && (
-                            <span className="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded font-medium">
-                              By: {an.createdBy.name} ({an.createdBy.department || "ICTG"})
+                            <span className="text-[11px] text-slate-400">
+                              • By {an.createdBy.name} ({an.createdBy.department || "ICTG"})
                             </span>
                           )}
                         </div>
@@ -761,21 +782,27 @@ export default function Admin() {
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => setEditingAnnouncement({ ...an })}
-                          className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                          className="p-1.5 rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                           title="Edit Notice"
                         >
-                          <Edit2 size={14} />
+                          <Edit2 size={13} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmItem({ type: "announcement", id: an._id, title: an.title })}
-                          className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                          className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                           title="Delete Notice"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
                   ))}
+
+                  {announcementsList.length === 0 && (
+                    <div className="p-8 text-center text-xs text-slate-500">
+                      No bulletins published yet.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
