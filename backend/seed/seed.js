@@ -29,6 +29,7 @@ const events = [
     startDate: daysFromNow(2, 8, 0),
     endDate: daysFromNow(2, 10, 30),
     location: "Main Auditorium",
+    imageUrl: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1200&q=80",
     isFeatured: true,
   },
   {
@@ -39,6 +40,7 @@ const events = [
     startDate: daysFromNow(9, 9, 0),
     endDate: daysFromNow(9, 16, 0),
     location: "Conference Hall B",
+    imageUrl: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&q=80",
     isFeatured: true,
   },
   {
@@ -49,6 +51,7 @@ const events = [
     startDate: daysFromNow(21, 8, 0),
     endDate: daysFromNow(23, 18, 0),
     location: "Winners Chapel Camp Ground",
+    imageUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
     isFeatured: true,
   },
   {
@@ -59,6 +62,7 @@ const events = [
     startDate: daysFromNow(14, 9, 0),
     endDate: daysFromNow(14, 14, 0),
     location: "Church Frontage Grounds",
+    imageUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
   },
   {
     title: "Youth Alive Hangout",
@@ -68,6 +72,7 @@ const events = [
     startDate: daysFromNow(6, 16, 0),
     endDate: daysFromNow(6, 19, 0),
     location: "Youth Chapel",
+    imageUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
   },
   {
     title: "New Members Orientation",
@@ -77,6 +82,7 @@ const events = [
     startDate: daysFromNow(4, 11, 0),
     endDate: daysFromNow(4, 12, 30),
     location: "Fellowship Hall",
+    imageUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
   },
   {
     title: "Midweek Prayer Meeting",
@@ -85,6 +91,7 @@ const events = [
     startDate: daysFromNow(-3, 18, 0),
     endDate: daysFromNow(-3, 19, 30),
     location: "Main Auditorium",
+    imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80",
   },
 ];
 

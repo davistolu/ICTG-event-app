@@ -22,27 +22,41 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0">
         {toasts.map((toast) => {
           const isSuccess = toast.type === "success";
           const isError = toast.type === "error";
           return (
             <div
               key={toast.id}
-              className="pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-ink-950 text-white shadow-floating border border-ink-800 transition-all duration-200 animate-in fade-in slide-in-from-bottom-4"
+              className="pointer-events-auto flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl bg-slate-950 text-white shadow-2xl border border-slate-800 transition-all duration-200 animate-in fade-in slide-in-from-bottom-4"
             >
-              <div className="flex items-center gap-2.5 text-xs font-mono font-medium">
-                {isSuccess && <span className="h-2 w-2 rounded-full bg-emerald-400"></span>}
-                {isError && <span className="h-2 w-2 rounded-full bg-crimson-500"></span>}
-                {!isSuccess && !isError && <span className="h-2 w-2 rounded-full bg-white"></span>}
-                <span className="font-sans text-sm text-paper-100">{toast.message}</span>
+              <div className="flex items-center gap-3 min-w-0">
+                {isSuccess && (
+                  <div className="h-7 w-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                )}
+                {isError && (
+                  <div className="h-7 w-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                    <AlertCircle size={16} />
+                  </div>
+                )}
+                {!isSuccess && !isError && (
+                  <div className="h-7 w-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                    <Info size={16} />
+                  </div>
+                )}
+                <span className="text-sm font-medium text-white leading-snug break-words">
+                  {toast.message}
+                </span>
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-ink-500 hover:text-white transition-colors p-1"
+                className="text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg p-1 transition-colors shrink-0"
                 aria-label="Close notification"
               >
-                <X size={14} />
+                <X size={15} />
               </button>
             </div>
           );

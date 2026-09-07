@@ -84,15 +84,14 @@ export default function Announcements() {
     <div className="mx-auto max-w-content px-4 py-10 sm:px-8 space-y-10">
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold uppercase tracking-wider border border-red-200/60">
-            <Megaphone size={13} />
-            <span>Official Bulletins &amp; Notices</span>
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-red-600">
+            Official Bulletins &amp; Notices
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mt-1">
             Announcements Hub
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 max-w-2xl">
+          <p className="mt-1 text-sm sm:text-base text-slate-600 max-w-2xl">
             Administrative notices, technical directives, unit schedules, and department circulars across Winners Chapel ICT Group.
           </p>
         </div>

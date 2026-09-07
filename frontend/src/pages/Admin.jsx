@@ -29,7 +29,10 @@ import {
   Users,
   UserPlus,
   Key,
-  UserCheck
+  UserCheck,
+  Upload,
+  Image as ImageIcon,
+  Link2
 } from "lucide-react";
 import client from "../api/client";
 import { 
@@ -84,6 +87,7 @@ export default function Admin() {
     location: "Winners Chapel Sanctuary",
     startDate: "",
     endDate: "",
+    imageUrl: "",
     isFeatured: false,
   });
 
@@ -182,6 +186,7 @@ export default function Admin() {
         location: "Winners Chapel Sanctuary",
         startDate: "",
         endDate: "",
+        imageUrl: "",
         isFeatured: false,
       });
       loadAllData();
@@ -824,20 +829,29 @@ export default function Admin() {
                       key={ev._id}
                       className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
                     >
-                      <div className="min-w-0 space-y-1.5 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-0.5 rounded-md border border-red-100">
-                            {ev.category}
-                          </span>
-                          {ev.isFeatured && (
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
-                              Featured
-                            </span>
-                          )}
-                        </div>
+                      <div className="flex items-start gap-4 min-w-0 flex-1">
+                        {ev.imageUrl ? (
+                          <img
+                            src={ev.imageUrl}
+                            alt={ev.title}
+                            className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 hidden sm:block"
+                          />
+                        ) : null}
 
-                        <h4 className="text-base font-bold text-slate-900">{ev.title}</h4>
-                        <p className="text-xs text-slate-600 line-clamp-1">{ev.description}</p>
+                        <div className="min-w-0 space-y-1.5 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-0.5 rounded-md border border-red-100">
+                              {ev.category}
+                            </span>
+                            {ev.isFeatured && (
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+                                Featured
+                              </span>
+                            )}
+                          </div>
+
+                          <h4 className="text-base font-bold text-slate-900">{ev.title}</h4>
+                          <p className="text-xs text-slate-600 line-clamp-1">{ev.description}</p>
 
                         <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
                           <span className="flex items-center gap-1 font-medium text-slate-700">
@@ -857,6 +871,7 @@ export default function Admin() {
                           )}
                         </div>
                       </div>
+                    </div>
 
                       {/* Controls */}
                       <div className="flex items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 justify-end shrink-0">
@@ -1311,6 +1326,80 @@ export default function Admin() {
                     </div>
                   </div>
 
+                  {/* Cover Image Upload / URL */}
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <ImageIcon size={13} className="text-slate-400" />
+                        <span>Event Cover Image (Optional)</span>
+                      </span>
+                      {newEvent.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setNewEvent({ ...newEvent, imageUrl: "" })}
+                          className="text-[11px] text-red-600 hover:text-red-700 font-medium"
+                        >
+                          Remove Image
+                        </button>
+                      )}
+                    </label>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-red-500 bg-slate-50 hover:bg-red-50/40 text-slate-600 transition-colors text-xs font-semibold">
+                          <Upload size={14} className="text-slate-400" />
+                          <span>Upload Image from Device</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 8 * 1024 * 1024) {
+                                  addToast("Image exceeds 8MB size limit", "error");
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setNewEvent({ ...newEvent, imageUrl: reader.result });
+                                  addToast("Event image attached", "success");
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                          <Link2 size={13} />
+                        </div>
+                        <input
+                          type="url"
+                          placeholder="Or paste direct image URL (https://...)"
+                          value={newEvent.imageUrl?.startsWith("data:") ? "" : (newEvent.imageUrl || "")}
+                          onChange={(e) => setNewEvent({ ...newEvent, imageUrl: e.target.value })}
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white"
+                        />
+                      </div>
+
+                      {newEvent.imageUrl && (
+                        <div className="relative w-full h-32 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                          <img
+                            src={newEvent.imageUrl}
+                            alt="Event preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-2 right-2 bg-slate-950/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs">
+                            Cover Preview
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <label className="font-semibold text-slate-700">Description *</label>
                     <textarea
@@ -1361,6 +1450,16 @@ export default function Admin() {
                       </span>
                     )}
                   </div>
+
+                  {newEvent.imageUrl && (
+                    <div className="w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <img
+                        src={newEvent.imageUrl}
+                        alt="Event card preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-start gap-4">
                     <div className="flex flex-col items-center shrink-0 w-12 h-14 rounded-lg border border-slate-200 bg-white shadow-xs overflow-hidden">
@@ -1609,6 +1708,80 @@ export default function Admin() {
                     value={editingEvent.endDate ? new Date(editingEvent.endDate).toISOString().slice(0, 16) : ""}
                     onChange={(e) => setEditingEvent({ ...editingEvent, endDate: e.target.value })}
                   />
+                </div>
+              </div>
+
+              {/* Cover Image in Edit Modal */}
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ImageIcon size={13} className="text-slate-400" />
+                    <span>Event Cover Image</span>
+                  </span>
+                  {editingEvent.imageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingEvent({ ...editingEvent, imageUrl: "" })}
+                      className="text-[11px] text-red-600 hover:text-red-700 font-medium"
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </label>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-red-500 bg-slate-50 hover:bg-red-50/40 text-slate-600 transition-colors text-xs font-semibold">
+                      <Upload size={14} className="text-slate-400" />
+                      <span>Upload New Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 8 * 1024 * 1024) {
+                              addToast("Image exceeds 8MB size limit", "error");
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setEditingEvent({ ...editingEvent, imageUrl: reader.result });
+                              addToast("Image updated", "success");
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <Link2 size={13} />
+                    </div>
+                    <input
+                      type="url"
+                      placeholder="Or paste direct image URL (https://...)"
+                      value={editingEvent.imageUrl?.startsWith("data:") ? "" : (editingEvent.imageUrl || "")}
+                      onChange={(e) => setEditingEvent({ ...editingEvent, imageUrl: e.target.value })}
+                      className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white"
+                    />
+                  </div>
+
+                  {editingEvent.imageUrl && (
+                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <img
+                        src={editingEvent.imageUrl}
+                        alt="Event preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 right-2 bg-slate-950/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs">
+                        Current Image
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
