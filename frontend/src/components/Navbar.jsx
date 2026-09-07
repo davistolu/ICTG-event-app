@@ -33,11 +33,9 @@ export default function Navbar() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold tracking-tight text-white">
-                ICT Group
+                ICT Group Events & Announcements Portal
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-950/80 px-2 py-0.5 rounded-md border border-red-800/60">
-                Portal
-              </span>
+             
             </div>
             <span className="hidden text-xs text-slate-400 sm:block -mt-0.5">
               Winners Chapel International
