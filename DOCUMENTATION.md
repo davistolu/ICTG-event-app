@@ -122,7 +122,7 @@ ictg-events-portal/
 
 ---
 
-## 4. Key Technical Decisions
+## 4. Key Technical Decisions.....YOU CAN'T JUST HACK EET!🤣😂
 
 ### 4.1. Stateless JWT Authentication with 3-Tier RBAC & Token Invalidation
 - **Decision**: Authenticate administrators via stateless signed JSON Web Tokens (JWT) stored in browser `localStorage` and sent via `Authorization: Bearer <token>` headers.
