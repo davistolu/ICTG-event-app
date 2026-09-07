@@ -24,15 +24,17 @@ An enterprise-grade, modern web portal designed for the **Winners Chapel Interna
   - Persistent localStorage-backed drawer to save favorite events and notices for quick offline access.
 - **Privacy First**: Public-facing cards and detail pages display organizing units/departments (e.g. *Software & Systems*, *Audio / Visual Broadcast*) rather than individual administrator names.
 
-### 2. Administrator Secretariat Command Center
-- **Direct Link Access**: Completely unlinked from public headers and footers for maximum security. Accessible exclusively via the direct URL (`/admin`).
-- **Comprehensive Management Suite**:
-  - **Overview**: High-level telemetry, active circulars, upcoming events, and system status.
+### 2. Administrative Control Console
+- **Direct Link Access**: Completely unlinked from public navigation for enhanced security. Accessible exclusively via the direct route (`/admin`).
+- **High-Density Enterprise Suite**:
+  - **Overview**: Real-time telemetry, active circulars, scheduled events, and operational API status.
   - **Manage Events**: Full search, category filter, instant 1-click *Featured* toggle, Edit Modal, and Delete confirmations.
   - **Manage Bulletins**: Search, category filter, instant 1-click *Pin* toggle, Edit Modal, and Delete confirmations.
-  - **Schedule & Publish Forms**: Split-screen live preview cards updating in real time as administrators draft notices.
+  - **Cover Media & Artwork**: Support for local device uploads (base64 Data URLs) and remote CDN URLs with live preview.
   - **Author Attribution**: Admin dashboard records and displays the specific administrator (`Posted by: [Name] ([Department])`) who scheduled or published each item.
-  - **Secretariat Team Management**: Multi-admin registration, role assignment, profile editing, and password reset.
+  - **Team Access Management**: Multi-admin registration, 3-tier role assignment, profile editing, and password reset.
+
+> For in-depth architectural and technical design details, see [DOCUMENTATION.md](./DOCUMENTATION.md).
 
 ---
 
