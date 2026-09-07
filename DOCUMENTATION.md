@@ -1,4 +1,4 @@
-# Winners Chapel International ICT Group (ICTG) Events & Announcements Portal
+# Winners Chapel International ICT Group (ICTG) Events & Announcements Portal (Accessment Test though)
 ## Technical & Architectural Documentation
 
 ---

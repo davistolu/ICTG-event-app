@@ -1,6 +1,6 @@
 # Winners Chapel ICT Group (ICTG) Events & Announcements Portal
 
-An enterprise-grade, modern web portal designed for the **Winners Chapel International ICT Group (ICTG)**. Members can explore upcoming services, conferences, and technical workshops, read official ministry bulletins, download calendar reminders, and bookmark items. Authorized administrators have access to an internal Command Center for scheduling, publishing, role assignment, and audit tracking.
+A SIMPLE and I repeat very SIMPLE, Events and Announcements Portal for ICTG. As you proceed with this, may you remain ever blessed😌.
 
 ---
 
