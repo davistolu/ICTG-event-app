@@ -2,21 +2,6 @@
 
 An enterprise-grade, modern web portal designed for the **Winners Chapel International ICT Group (ICTG)**. Members can explore upcoming services, conferences, and technical workshops, read official ministry bulletins, download calendar reminders, and bookmark items. Authorized administrators have access to an internal Command Center for scheduling, publishing, role assignment, and audit tracking.
 
-Built with the **MERN Stack** (MongoDB, Express, React, Node.js) with strict Obsidian Black (`slate-950`), Crisp White, and Signature Red (`#DC2626`) design principles.
-
----
-
-## Table of Contents
-
-- [Key Features](#key-features)
-- [Design & Brand Identity](#design--brand-identity)
-- [Tech Stack](#tech-stack)
-- [Project Architecture](#project-architecture)
-- [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
-- [Setup & Installation](#setup--installation)
-- [API Specification](#api-specification)
-- [Admin Access Instructions](#admin-access-instructions)
-
 ---
 
 ## Key Features
