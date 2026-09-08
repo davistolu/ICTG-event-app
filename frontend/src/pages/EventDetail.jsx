@@ -19,6 +19,8 @@ import { useBookmarks } from "../context/BookmarksContext";
 import { useToast } from "../context/ToastContext";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
+import MediaDisplay from "../components/MediaDisplay";
+import { getMediaSummary } from "../utils/mediaHelpers";
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -31,6 +33,7 @@ export default function EventDetail() {
   const [hasRsvp, setHasRsvp] = useState(false);
 
   const isBookmarked = event ? isEventBookmarked(event._id) : false;
+  const mediaSummary = getMediaSummary(event);
 
   const [countdown, setCountdown] = useState({
     days: 0,
@@ -123,17 +126,15 @@ export default function EventDetail() {
               {event.title}
             </h1>
 
-            {/* Event Hero Cover Image */}
-            {event.imageUrl && (
-              <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs">
-                <img
-                  src={event.imageUrl}
-                  alt={event.title}
-                  onError={(e) => {
-                    e.currentTarget.parentElement.style.display = "none";
-                  }}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+            {/* Event Hero Cover Media */}
+            {mediaSummary.hasMedia && (
+              <div className="w-full rounded-2xl overflow-hidden shadow-xs">
+                <MediaDisplay
+                  mediaType={mediaSummary.mediaType}
+                  imageUrl={mediaSummary.imageUrl}
+                  videoUrl={mediaSummary.videoUrl}
+                  title={event.title}
+                  mode="hero"
                 />
               </div>
             )}

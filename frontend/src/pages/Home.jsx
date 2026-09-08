@@ -21,6 +21,8 @@ import SectionHeader from "../components/SectionHeader";
 import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
+import MediaDisplay from "../components/MediaDisplay";
+import { getMediaSummary } from "../utils/mediaHelpers";
 import { getTimeRemaining } from "../utils/calendarHelpers";
 
 export default function Home() {
@@ -30,31 +32,27 @@ export default function Home() {
   const events = useFetch(loadEvents, []);
   const announcements = useFetch(loadAnnouncements, []);
 
-  // Next upcoming event for countdown
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  // Select next closest upcoming event for the Hero highlight
   const nextEvent = useMemo(() => {
-    if (!events.data?.data?.length) return null;
-    const now = Date.now();
-    const upcoming = events.data.data
-      .filter((ev) => new Date(ev.startDate).getTime() > now)
+    const list = events.data?.data || [];
+    const upcoming = list
+      .filter((e) => new Date(e.startDate) >= new Date())
       .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-    return upcoming[0] || events.data.data[0];
+    return upcoming[0] || list[0] || null;
   }, [events.data]);
 
-  const [countdown, setCountdown] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    isPast: false,
-  });
+  const nextEventMedia = useMemo(() => getMediaSummary(nextEvent), [nextEvent]);
 
   useEffect(() => {
     if (!nextEvent?.startDate) return;
-    const updateCountdown = () => setCountdown(getTimeRemaining(nextEvent.startDate));
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
+    setCountdown(getTimeRemaining(nextEvent.startDate));
+    const timer = setInterval(() => {
+      setCountdown(getTimeRemaining(nextEvent.startDate));
+    }, 1000);
     return () => clearInterval(timer);
-  }, [nextEvent]);
+  }, [nextEvent?.startDate]);
 
   // Priority announcement
   const priorityAnnouncement = useMemo(() => {
@@ -63,75 +61,53 @@ export default function Home() {
   }, [announcements.data]);
 
   return (
-    <div className="space-y-16 pb-16">
+    <div className="space-y-16 sm:space-y-24 pb-16">
       {/* 1. HERO SECTION */}
-      <section className="bg-white border-b border-slate-200 py-12 sm:py-16">
-        <div className="mx-auto max-w-content px-4 sm:px-8">
+      <section className="relative overflow-hidden bg-white border-b border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 sm:py-24">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            {/* Left Column: Heading, manifesto, actions */}
-            <div className="lg:col-span-7 space-y-6 text-center sm:text-left">
-              <div className="text-xs font-bold uppercase tracking-wider text-red-600">
-                Winners Chapel ICT Group
+            
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold">
+                <span className="h-2 w-2 rounded-full bg-red-600"></span>
+                <span>Official Secretariat Portal</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Everything happening across ICTG, in one place.
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">
+                Empowering the Church through{" "}
+                <span className="text-red-600">Technology &amp; Ministry</span>
               </h1>
 
-              <p className="max-w-xl text-base sm:text-lg text-slate-600 leading-relaxed mx-auto sm:mx-0">
-                Upcoming church events, technical training sessions, broadcast schedules, and official notices from department leaders.
+              <p className="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
+                Stay updated with service schedules, technical workshops, live ministry broadcasts, and official directives from the Winners Chapel Information &amp; Communication Technology Group.
               </p>
 
-              {/* Buttons */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3.5 pt-2">
+              <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Link
                   to="/events"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-colors shadow-sm"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-semibold text-sm transition-all shadow-sm group"
                 >
-                  <Calendar size={16} />
-                  <span>Browse Events</span>
-                  <ArrowRight size={14} />
+                  <span>Explore Schedule</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
 
                 <Link
                   to="/announcements"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold text-sm border border-slate-200 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-200 transition-all shadow-xs"
                 >
-                  <Megaphone size={16} />
-                  <span>Announcements</span>
+                  <span>Official Circulars</span>
+                  <Megaphone size={16} className="text-red-600" />
                 </Link>
-              </div>
-
-              {/* Stats Bar */}
-              <div className="pt-6 grid grid-cols-3 gap-4 border-t border-slate-100 max-w-lg mx-auto sm:mx-0 text-left">
-                <div>
-                  <div className="text-2xl font-bold text-slate-900">
-                    {events.data?.total || "12+"}
-                  </div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">Scheduled Events</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-red-600">
-                    {announcements.data?.total || "18+"}
-                  </div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">Active Notices</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-slate-900">
-                    4
-                  </div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">Technical Units</div>
-                </div>
               </div>
             </div>
 
-            {/* Right Column: Next Event Card */}
+            {/* Right Spotlight Column */}
             <div className="lg:col-span-5">
               {nextEvent ? (
-                <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 shadow-sm space-y-4">
-                  {/* Spotlight Top row */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-red-600">
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-1 rounded-md border border-red-100">
                       Next Event
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
@@ -139,16 +115,15 @@ export default function Home() {
                     </span>
                   </div>
 
-                  {nextEvent.imageUrl && (
+                  {nextEventMedia.hasMedia && (
                     <div className="w-full h-40 sm:h-44 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-                      <img
-                        src={nextEvent.imageUrl}
-                        alt={nextEvent.title}
-                        onError={(e) => {
-                          e.currentTarget.parentElement.style.display = "none";
-                        }}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                      <MediaDisplay
+                        mediaType={nextEventMedia.mediaType}
+                        imageUrl={nextEventMedia.imageUrl}
+                        videoUrl={nextEventMedia.videoUrl}
+                        title={nextEvent.title}
+                        mode="card"
+                        className="w-full h-full"
                       />
                     </div>
                   )}

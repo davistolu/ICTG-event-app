@@ -144,9 +144,14 @@ ictg-events-portal/
 - **Decision**: Public-facing cards and detail pages only display the organizing department or unit (e.g. *AV & Broadcast*, *Software & Systems*), keeping individual administrator names visible only within the authenticated `/admin` control console.
 - **Rationale**: Protects administrative privacy from public scraping while maintaining internal accountability and auditability.
 
-### 4.5. Payload Expansion for Device Media Uploads with Protocol Sanitization
-- **Decision**: Configured Express body parser limits to `15mb` (`express.json({ limit: "15mb" })`) and added browser-side `FileReader` Data URL conversion in conjunction with standard URL support.
-- **Security**: Strictly validates all image inputs to allow only `http://`, `https://`, or safe base64 Data URLs (`data:image/(png|jpeg|jpg|webp|gif);base64,...`), completely blocking `javascript:` and dangerous URI schemes.
+### 4.5. Unified Multi-Format Media Architecture (Images & Videos)
+- **Decision**: Enabled comprehensive media attachment capabilities across both **Events** and **Announcements** with a dedicated `mediaType` (`"image" | "video" | "none"`).
+- **Video Capabilities**:
+  - **YouTube & Vimeo**: Automatic URL parsing into privacy-enhanced embeds (`https://www.youtube-nocookie.com/embed/{id}` and `https://player.vimeo.com/video/{id}`).
+  - **Direct Video Streams**: Native HTML5 `<video controls>` rendering for direct MP4, WebM, and OGG streams.
+  - **Local Device Video Upload**: Direct browser-to-database media encoding via `FileReader` Data URLs (`data:video/mp4;base64,...` up to 15MB) with live player preview before publishing.
+- **Security & CSP**: Strictly validated via `isSafeVideoUrl` against XSS/protocol hijacking; Helmet CSP updated with `mediaSrc: ["'self'", "data:", "https:", "blob:"]` and `frameSrc: ["https://www.youtube.com", "https://www.youtube-nocookie.com", "https://player.vimeo.com"]`.
+- **Card Thumbnails vs Hero Players**: Public cards render lightweight media thumbnails with high-visibility red play badges for optimum performance, while detail views seamlessly embed interactive responsive video players.
 
 ---
 
@@ -182,7 +187,9 @@ ictg-events-portal/
   startDate: { type: Date, required: true },
   endDate: { type: Date },
   location: { type: String, default: "Winners Chapel", maxlength: 160 },
+  mediaType: { type: String, enum: ["image", "video", "none"], default: "none" },
   imageUrl: { type: String, default: "" },
+  videoUrl: { type: String, default: "" },
   isFeatured: { type: Boolean, default: false },
   createdBy: {
     id: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
@@ -206,6 +213,9 @@ ictg-events-portal/
   },
   priority: { type: String, enum: ["Normal", "High"], default: "Normal" },
   isPinned: { type: Boolean, default: false },
+  mediaType: { type: String, enum: ["image", "video", "none"], default: "none" },
+  imageUrl: { type: String, default: "" },
+  videoUrl: { type: String, default: "" },
   publishDate: { type: Date, default: Date.now },
   expiryDate: { type: Date },
   createdBy: {
