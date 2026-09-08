@@ -31,6 +31,21 @@ const announcementSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    mediaType: {
+      type: String,
+      enum: ["image", "video", "none"],
+      default: "none",
+    },
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    videoUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     publishDate: {
       type: Date,
       default: Date.now,

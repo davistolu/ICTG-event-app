@@ -32,7 +32,9 @@ import {
   UserCheck,
   Upload,
   Image as ImageIcon,
-  Link2
+  Link2,
+  Video as VideoIcon,
+  Film
 } from "lucide-react";
 import client from "../api/client";
 import { 
@@ -52,6 +54,8 @@ import {
 } from "../api/announcements";
 import { formatDateTime, formatRelativeToNow } from "../utils/formatDate";
 import { useToast } from "../context/ToastContext";
+import MediaInput from "../components/MediaInput";
+import MediaDisplay from "../components/MediaDisplay";
 
 export default function Admin() {
   const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
@@ -87,7 +91,9 @@ export default function Admin() {
     location: "Winners Chapel Sanctuary",
     startDate: "",
     endDate: "",
+    mediaType: "none",
     imageUrl: "",
+    videoUrl: "",
     isFeatured: false,
   });
 
@@ -98,6 +104,9 @@ export default function Admin() {
     priority: "Normal",
     isPinned: false,
     expiryDate: "",
+    mediaType: "none",
+    imageUrl: "",
+    videoUrl: "",
   });
 
   const [newAdminUser, setNewAdminUser] = useState({
@@ -186,7 +195,9 @@ export default function Admin() {
         location: "Winners Chapel Sanctuary",
         startDate: "",
         endDate: "",
+        mediaType: "none",
         imageUrl: "",
+        videoUrl: "",
         isFeatured: false,
       });
       loadAllData();
@@ -322,6 +333,9 @@ export default function Admin() {
         priority: "Normal",
         isPinned: false,
         expiryDate: "",
+        mediaType: "none",
+        imageUrl: "",
+        videoUrl: "",
       });
       loadAllData();
       setActiveTab("announcements");
@@ -857,12 +871,17 @@ export default function Admin() {
                       className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
                     >
                       <div className="flex items-start gap-4 min-w-0 flex-1">
-                        {ev.imageUrl ? (
-                          <img
-                            src={ev.imageUrl}
-                            alt={ev.title}
-                            className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 hidden sm:block"
-                          />
+                        {(ev.imageUrl || ev.videoUrl) ? (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 shrink-0 hidden sm:block">
+                            <MediaDisplay
+                              mediaType={ev.mediaType}
+                              imageUrl={ev.imageUrl}
+                              videoUrl={ev.videoUrl}
+                              title={ev.title}
+                              mode="thumbnail"
+                              className="w-full h-full"
+                            />
+                          </div>
                         ) : null}
 
                         <div className="min-w-0 space-y-1.5 flex-1">
@@ -870,6 +889,12 @@ export default function Admin() {
                             <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-0.5 rounded-md border border-red-100">
                               {ev.category}
                             </span>
+                            {ev.videoUrl && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-white bg-slate-900 px-2.5 py-0.5 rounded-md border border-slate-900">
+                                <VideoIcon size={11} className="text-red-400" />
+                                Video
+                              </span>
+                            )}
                             {ev.isFeatured && (
                               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
                                 Featured
@@ -996,23 +1021,43 @@ export default function Admin() {
                       key={an._id}
                       className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
                     >
-                      <div className="min-w-0 space-y-1.5 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
-                            {an.category}
-                          </span>
-                          {an.priority === "High" && (
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-0.5 rounded-md border border-red-100">
-                              Urgent Notice
+                      <div className="flex items-start gap-4 min-w-0 flex-1">
+                        {(an.imageUrl || an.videoUrl) ? (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 shrink-0 hidden sm:block">
+                            <MediaDisplay
+                              mediaType={an.mediaType}
+                              imageUrl={an.imageUrl}
+                              videoUrl={an.videoUrl}
+                              title={an.title}
+                              mode="thumbnail"
+                              className="w-full h-full"
+                            />
+                          </div>
+                        ) : null}
+
+                        <div className="min-w-0 space-y-1.5 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+                              {an.category}
                             </span>
-                          )}
-                          {an.isPinned && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
-                              <Pin size={10} className="fill-slate-900" />
-                              Pinned
-                            </span>
-                          )}
-                        </div>
+                            {an.videoUrl && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-white bg-slate-900 px-2.5 py-0.5 rounded-md border border-slate-900">
+                                <VideoIcon size={11} className="text-red-400" />
+                                Video
+                              </span>
+                            )}
+                            {an.priority === "High" && (
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-0.5 rounded-md border border-red-100">
+                                Urgent Notice
+                              </span>
+                            )}
+                            {an.isPinned && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+                                <Pin size={10} className="fill-slate-900" />
+                                Pinned
+                              </span>
+                            )}
+                          </div>
 
                         <h4 className="text-base font-bold text-slate-900">{an.title}</h4>
                         <p className="text-xs text-slate-600 line-clamp-2">{an.body}</p>
@@ -1029,6 +1074,7 @@ export default function Admin() {
                           )}
                         </div>
                       </div>
+                    </div>
 
                       {/* Controls */}
                       <div className="flex items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 justify-end shrink-0">
@@ -1353,79 +1399,15 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  {/* Cover Image Upload / URL */}
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-slate-700 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <ImageIcon size={13} className="text-slate-400" />
-                        <span>Event Cover Image (Optional)</span>
-                      </span>
-                      {newEvent.imageUrl && (
-                        <button
-                          type="button"
-                          onClick={() => setNewEvent({ ...newEvent, imageUrl: "" })}
-                          className="text-[11px] text-red-600 hover:text-red-700 font-medium"
-                        >
-                          Remove Image
-                        </button>
-                      )}
-                    </label>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-red-500 bg-slate-50 hover:bg-red-50/40 text-slate-600 transition-colors text-xs font-semibold">
-                          <Upload size={14} className="text-slate-400" />
-                          <span>Upload Image from Device</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                if (file.size > 8 * 1024 * 1024) {
-                                  addToast("Image exceeds 8MB size limit", "error");
-                                  return;
-                                }
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setNewEvent({ ...newEvent, imageUrl: reader.result });
-                                  addToast("Event image attached", "success");
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
-
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                          <Link2 size={13} />
-                        </div>
-                        <input
-                          type="url"
-                          placeholder="Or paste direct image URL (https://...)"
-                          value={newEvent.imageUrl?.startsWith("data:") ? "" : (newEvent.imageUrl || "")}
-                          onChange={(e) => setNewEvent({ ...newEvent, imageUrl: e.target.value })}
-                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white"
-                        />
-                      </div>
-
-                      {newEvent.imageUrl && (
-                        <div className="relative w-full h-32 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-                          <img
-                            src={newEvent.imageUrl}
-                            alt="Event preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute top-2 right-2 bg-slate-950/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs">
-                            Cover Preview
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  {/* Cover Media (Image or Video) */}
+                  <MediaInput
+                    label="Event Cover Media (Image or Video)"
+                    mediaType={newEvent.mediaType}
+                    imageUrl={newEvent.imageUrl}
+                    videoUrl={newEvent.videoUrl}
+                    onChange={(media) => setNewEvent({ ...newEvent, ...media })}
+                    onToast={addToast}
+                  />
 
                   <div className="space-y-1">
                     <label className="font-semibold text-slate-700">Description *</label>
@@ -1478,12 +1460,15 @@ export default function Admin() {
                     )}
                   </div>
 
-                  {newEvent.imageUrl && (
-                    <div className="w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-                      <img
-                        src={newEvent.imageUrl}
-                        alt="Event card preview"
-                        className="w-full h-full object-cover"
+                  {(newEvent.imageUrl || newEvent.videoUrl) && (
+                    <div className="w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <MediaDisplay
+                        mediaType={newEvent.mediaType}
+                        imageUrl={newEvent.imageUrl}
+                        videoUrl={newEvent.videoUrl}
+                        title={newEvent.title}
+                        mode="card"
+                        className="w-full h-36"
                       />
                     </div>
                   )}
@@ -1586,6 +1571,16 @@ export default function Admin() {
                     />
                   </div>
 
+                  {/* Cover Media (Image or Video) for Announcement */}
+                  <MediaInput
+                    label="Announcement Cover Media (Image or Video)"
+                    mediaType={newAnnouncement.mediaType}
+                    imageUrl={newAnnouncement.imageUrl}
+                    videoUrl={newAnnouncement.videoUrl}
+                    onChange={(media) => setNewAnnouncement({ ...newAnnouncement, ...media })}
+                    onToast={addToast}
+                  />
+
                   <div className="space-y-1">
                     <label className="font-semibold text-slate-700">Body Content *</label>
                     <textarea
@@ -1646,6 +1641,19 @@ export default function Admin() {
                       )}
                     </div>
                   </div>
+
+                  {(newAnnouncement.imageUrl || newAnnouncement.videoUrl) && (
+                    <div className="w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <MediaDisplay
+                        mediaType={newAnnouncement.mediaType}
+                        imageUrl={newAnnouncement.imageUrl}
+                        videoUrl={newAnnouncement.videoUrl}
+                        title={newAnnouncement.title}
+                        mode="card"
+                        className="w-full h-36"
+                      />
+                    </div>
+                  )}
 
                   <h3 className="text-base font-bold text-slate-900 leading-snug">
                     {newAnnouncement.title || "Your Announcement Title"}
@@ -1738,79 +1746,15 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Cover Image in Edit Modal */}
-              <div className="space-y-1.5">
-                <label className="font-semibold text-slate-700 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ImageIcon size={13} className="text-slate-400" />
-                    <span>Event Cover Image</span>
-                  </span>
-                  {editingEvent.imageUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setEditingEvent({ ...editingEvent, imageUrl: "" })}
-                      className="text-[11px] text-red-600 hover:text-red-700 font-medium"
-                    >
-                      Remove Image
-                    </button>
-                  )}
-                </label>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-red-500 bg-slate-50 hover:bg-red-50/40 text-slate-600 transition-colors text-xs font-semibold">
-                      <Upload size={14} className="text-slate-400" />
-                      <span>Upload New Image</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            if (file.size > 8 * 1024 * 1024) {
-                              addToast("Image exceeds 8MB size limit", "error");
-                              return;
-                            }
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setEditingEvent({ ...editingEvent, imageUrl: reader.result });
-                              addToast("Image updated", "success");
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Link2 size={13} />
-                    </div>
-                    <input
-                      type="url"
-                      placeholder="Or paste direct image URL (https://...)"
-                      value={editingEvent.imageUrl?.startsWith("data:") ? "" : (editingEvent.imageUrl || "")}
-                      onChange={(e) => setEditingEvent({ ...editingEvent, imageUrl: e.target.value })}
-                      className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white"
-                    />
-                  </div>
-
-                  {editingEvent.imageUrl && (
-                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-                      <img
-                        src={editingEvent.imageUrl}
-                        alt="Event preview"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2 right-2 bg-slate-950/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs">
-                        Current Image
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Cover Media in Edit Event Modal */}
+              <MediaInput
+                label="Event Cover Media (Image or Video)"
+                mediaType={editingEvent.mediaType}
+                imageUrl={editingEvent.imageUrl}
+                videoUrl={editingEvent.videoUrl}
+                onChange={(media) => setEditingEvent({ ...editingEvent, ...media })}
+                onToast={addToast}
+              />
 
               <div className="space-y-1">
                 <label className="font-semibold text-slate-700">Description *</label>
@@ -1916,6 +1860,16 @@ export default function Admin() {
                   onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, expiryDate: e.target.value })}
                 />
               </div>
+
+              {/* Cover Media for Announcement in Edit Modal */}
+              <MediaInput
+                label="Announcement Cover Media (Image or Video)"
+                mediaType={editingAnnouncement.mediaType}
+                imageUrl={editingAnnouncement.imageUrl}
+                videoUrl={editingAnnouncement.videoUrl}
+                onChange={(media) => setEditingAnnouncement({ ...editingAnnouncement, ...media })}
+                onToast={addToast}
+              />
 
               <div className="space-y-1">
                 <label className="font-semibold text-slate-700">Body Content *</label>

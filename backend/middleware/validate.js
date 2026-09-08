@@ -50,6 +50,29 @@ export function isSafeImageUrl(url) {
 }
 
 /**
+ * Validates video URLs for safety (only allows http, https, YouTube, Vimeo, or safe base64 video formats).
+ * Prevents javascript: URIs, data:text/html, and dangerous payloads.
+ */
+export function isSafeVideoUrl(url) {
+  if (!url || typeof url !== "string") return true;
+  const trimmed = url.trim();
+  if (trimmed === "") return true;
+
+  // Check for safe HTTP/HTTPS URL
+  if (validator.isURL(trimmed, { protocols: ["http", "https"], require_protocol: true })) {
+    return true;
+  }
+
+  // Check for safe base64 Data URL format (MP4, WEBM, OGG)
+  const base64VideoRegex = /^data:video\/(mp4|webm|ogg);base64,[A-Za-z0-9+/=]+$/;
+  if (base64VideoRegex.test(trimmed)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Password complexity validation:
  * - Minimum 8 characters
  * - At least one letter and one number
@@ -110,9 +133,19 @@ export function validateEventInput(isUpdate = false) {
       errors.push("Location cannot exceed 160 characters");
     }
 
+    if (body.mediaType !== undefined && !["image", "video", "none"].includes(body.mediaType)) {
+      errors.push("mediaType must be one of: image, video, none");
+    }
+
     if (body.imageUrl !== undefined && body.imageUrl !== "") {
       if (!isSafeImageUrl(body.imageUrl)) {
         errors.push("Image must be a valid HTTP/HTTPS URL or safe image data URL (PNG, JPEG, WEBP, GIF)");
+      }
+    }
+
+    if (body.videoUrl !== undefined && body.videoUrl !== "") {
+      if (!isSafeVideoUrl(body.videoUrl)) {
+        errors.push("Video must be a valid HTTP/HTTPS URL (YouTube, Vimeo, direct link) or safe video data URL (MP4, WEBM, OGG)");
       }
     }
 
@@ -126,6 +159,7 @@ export function validateEventInput(isUpdate = false) {
     }
 
     // Whitelist sanitized payload attached to req.cleanBody
+    const derivedMediaType = body.mediaType || (body.videoUrl ? "video" : body.imageUrl ? "image" : "none");
     req.cleanBody = {
       title: body.title ? validator.escape(body.title.trim()) : undefined,
       description: body.description ? body.description.trim() : undefined,
@@ -133,7 +167,9 @@ export function validateEventInput(isUpdate = false) {
       startDate: body.startDate ? new Date(body.startDate) : undefined,
       endDate: body.endDate ? new Date(body.endDate) : undefined,
       location: body.location ? body.location.trim() : "Winners Chapel",
+      mediaType: derivedMediaType,
       imageUrl: body.imageUrl ? body.imageUrl.trim() : "",
+      videoUrl: body.videoUrl ? body.videoUrl.trim() : "",
       isFeatured: Boolean(body.isFeatured),
     };
 
@@ -188,6 +224,22 @@ export function validateAnnouncementInput(isUpdate = false) {
       }
     }
 
+    if (body.mediaType !== undefined && !["image", "video", "none"].includes(body.mediaType)) {
+      errors.push("mediaType must be one of: image, video, none");
+    }
+
+    if (body.imageUrl !== undefined && body.imageUrl !== "") {
+      if (!isSafeImageUrl(body.imageUrl)) {
+        errors.push("Image must be a valid HTTP/HTTPS URL or safe image data URL (PNG, JPEG, WEBP, GIF)");
+      }
+    }
+
+    if (body.videoUrl !== undefined && body.videoUrl !== "") {
+      if (!isSafeVideoUrl(body.videoUrl)) {
+        errors.push("Video must be a valid HTTP/HTTPS URL (YouTube, Vimeo, direct link) or safe video data URL (MP4, WEBM, OGG)");
+      }
+    }
+
     if (errors.length > 0) {
       logSecurityEvent(
         SecurityEvents.INPUT_VALIDATION_FAILURE,
@@ -197,12 +249,16 @@ export function validateAnnouncementInput(isUpdate = false) {
       return res.status(400).json({ success: false, message: errors.join(". ") });
     }
 
+    const derivedMediaType = body.mediaType || (body.videoUrl ? "video" : body.imageUrl ? "image" : "none");
     req.cleanBody = {
       title: body.title ? validator.escape(body.title.trim()) : undefined,
       body: body.body ? body.body.trim() : undefined,
       category: body.category,
       priority: body.priority || "Normal",
       isPinned: Boolean(body.isPinned),
+      mediaType: derivedMediaType,
+      imageUrl: body.imageUrl ? body.imageUrl.trim() : "",
+      videoUrl: body.videoUrl ? body.videoUrl.trim() : "",
       expiryDate: body.expiryDate ? new Date(body.expiryDate) : null,
     };
 

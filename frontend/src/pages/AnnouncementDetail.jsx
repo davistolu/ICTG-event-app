@@ -16,6 +16,8 @@ import { useBookmarks } from "../context/BookmarksContext";
 import { useToast } from "../context/ToastContext";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
+import MediaDisplay from "../components/MediaDisplay";
+import { getMediaSummary } from "../utils/mediaHelpers";
 
 export default function AnnouncementDetail() {
   const { id } = useParams();
@@ -27,6 +29,7 @@ export default function AnnouncementDetail() {
   const { addToast } = useToast();
 
   const isBookmarked = announcement ? isAnnouncementBookmarked(announcement._id) : false;
+  const mediaSummary = getMediaSummary(announcement);
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -128,6 +131,19 @@ export default function AnnouncementDetail() {
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {announcement.title}
             </h1>
+
+            {/* Hero Media (Image or Video) */}
+            {mediaSummary.hasMedia && (
+              <div className="pt-2">
+                <MediaDisplay
+                  mediaType={mediaSummary.mediaType}
+                  imageUrl={mediaSummary.imageUrl}
+                  videoUrl={mediaSummary.videoUrl}
+                  title={announcement.title}
+                  mode="hero"
+                />
+              </div>
+            )}
 
             {/* Metadata bar */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 pb-5 border-b border-slate-100">
