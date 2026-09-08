@@ -47,7 +47,17 @@ const eventSchema = new mongoose.Schema(
       default: "Winners Chapel",
       maxlength: [160, "Location cannot exceed 160 characters"],
     },
+    mediaType: {
+      type: String,
+      enum: ["image", "video", "none"],
+      default: "none",
+    },
     imageUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    videoUrl: {
       type: String,
       trim: true,
       default: "",

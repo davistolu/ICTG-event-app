@@ -7,12 +7,15 @@ import {
   CalendarPlus, 
   Share2, 
   ArrowRight,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Video
 } from "lucide-react";
 import { dateParts, formatDateTime } from "../utils/formatDate";
 import { generateGoogleCalendarUrl, downloadIcsFile } from "../utils/calendarHelpers";
 import { useBookmarks } from "../context/BookmarksContext";
 import { useToast } from "../context/ToastContext";
+import MediaDisplay from "./MediaDisplay";
+import { getMediaSummary } from "../utils/mediaHelpers";
 
 export default function EventCard({ event, variant = "default" }) {
   const { day, month } = dateParts(event.startDate);
@@ -23,6 +26,7 @@ export default function EventCard({ event, variant = "default" }) {
 
   const isBookmarked = isEventBookmarked(event._id);
   const isListView = variant === "list";
+  const mediaSummary = getMediaSummary(event);
 
   const handleShare = (e) => {
     e.preventDefault();
@@ -54,22 +58,23 @@ export default function EventCard({ event, variant = "default" }) {
   };
 
   const status = getRelativeStatus();
-  const hasImage = Boolean(event.imageUrl && !imgError);
+  const hasMedia = mediaSummary.hasMedia;
 
   if (isListView) {
     return (
       <article className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 transition-all duration-200 hover:border-slate-300 hover:shadow-md flex flex-col sm:flex-row gap-5 items-stretch">
-        {/* List view image / date block */}
-        {hasImage ? (
+        {/* List view image / video / date block */}
+        {hasMedia ? (
           <div className="relative w-full sm:w-52 h-44 sm:h-auto rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-            <img
-              src={event.imageUrl}
-              alt={event.title}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy"
+            <MediaDisplay
+              mediaType={mediaSummary.mediaType}
+              imageUrl={mediaSummary.imageUrl}
+              videoUrl={mediaSummary.videoUrl}
+              title={event.title}
+              mode="card"
+              className="w-full h-full"
             />
-            <div className="absolute top-2.5 left-2.5 flex flex-col items-center shrink-0 w-11 h-12 rounded-lg border border-slate-200 bg-white/95 backdrop-blur-xs shadow-xs overflow-hidden">
+            <div className="absolute top-2.5 left-2.5 flex flex-col items-center shrink-0 w-11 h-12 rounded-lg border border-slate-200 bg-white/95 backdrop-blur-xs shadow-xs overflow-hidden z-10">
               <div className="w-full bg-red-600 text-white text-[9px] font-bold uppercase tracking-wider text-center py-0.5 leading-none">
                 {month}
               </div>
@@ -223,17 +228,17 @@ export default function EventCard({ event, variant = "default" }) {
           </div>
         </div>
 
-        {/* 1.5 EVENT COVER IMAGE (If Uploaded) */}
-        {hasImage && (
+        {/* 1.5 EVENT COVER MEDIA (Image or Video) */}
+        {hasMedia && (
           <div className="relative w-full h-44 sm:h-48 mb-4 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-            <img
-              src={event.imageUrl}
-              alt={event.title}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy"
+            <MediaDisplay
+              mediaType={mediaSummary.mediaType}
+              imageUrl={mediaSummary.imageUrl}
+              videoUrl={mediaSummary.videoUrl}
+              title={event.title}
+              mode="card"
+              className="w-full h-full"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-60 pointer-events-none" />
           </div>
         )}
 

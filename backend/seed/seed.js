@@ -29,6 +29,7 @@ const events = [
     startDate: daysFromNow(2, 8, 0),
     endDate: daysFromNow(2, 10, 30),
     location: "Main Auditorium",
+    mediaType: "image",
     imageUrl: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1200&q=80",
     isFeatured: true,
   },
@@ -40,6 +41,8 @@ const events = [
     startDate: daysFromNow(9, 9, 0),
     endDate: daysFromNow(9, 16, 0),
     location: "Conference Hall B",
+    mediaType: "video",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     imageUrl: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&q=80",
     isFeatured: true,
   },
@@ -51,6 +54,7 @@ const events = [
     startDate: daysFromNow(21, 8, 0),
     endDate: daysFromNow(23, 18, 0),
     location: "Winners Chapel Camp Ground",
+    mediaType: "image",
     imageUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
     isFeatured: true,
   },
@@ -62,6 +66,7 @@ const events = [
     startDate: daysFromNow(14, 9, 0),
     endDate: daysFromNow(14, 14, 0),
     location: "Church Frontage Grounds",
+    mediaType: "image",
     imageUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
   },
   {
@@ -72,6 +77,7 @@ const events = [
     startDate: daysFromNow(6, 16, 0),
     endDate: daysFromNow(6, 19, 0),
     location: "Youth Chapel",
+    mediaType: "image",
     imageUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
   },
   {
@@ -82,6 +88,7 @@ const events = [
     startDate: daysFromNow(4, 11, 0),
     endDate: daysFromNow(4, 12, 30),
     location: "Fellowship Hall",
+    mediaType: "image",
     imageUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
   },
   {
@@ -91,18 +98,22 @@ const events = [
     startDate: daysFromNow(-3, 18, 0),
     endDate: daysFromNow(-3, 19, 30),
     location: "Main Auditorium",
+    mediaType: "image",
     imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80",
   },
 ];
 
 const announcements = [
   {
-    title: "Portal Maintenance This Friday Night",
+    title: "Portal Maintenance & Streaming Upgrade This Friday Night",
     body:
-      "The ICTG Events & Announcements Portal will be briefly unavailable between 11pm and 1am on Friday while we roll out scheduled upgrades. No action is needed from members.",
+      "The ICTG Events & Announcements Portal will be briefly unavailable between 11pm and 1am on Friday while we roll out scheduled media streaming upgrades. No action is needed from members.",
     category: "ICT",
     priority: "High",
     isPinned: true,
+    mediaType: "video",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
     publishDate: daysFromNow(-1),
   },
   {
@@ -112,6 +123,8 @@ const announcements = [
     category: "General",
     priority: "Normal",
     isPinned: true,
+    mediaType: "image",
+    imageUrl: "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
     publishDate: daysFromNow(-2),
   },
   {
@@ -120,6 +133,8 @@ const announcements = [
       "Departments preparing for the Faith Convention are welcoming volunteers for logistics, ushering, and media. Speak with your unit head to sign up.",
     category: "Ministry",
     priority: "Normal",
+    mediaType: "image",
+    imageUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
     publishDate: daysFromNow(-4),
     expiryDate: daysFromNow(20),
   },
@@ -137,6 +152,8 @@ const announcements = [
       "Registration for this year's Youth Camp closes at the end of the week. Forms are available from Youth Alive unit leaders.",
     category: "Youth",
     priority: "High",
+    mediaType: "image",
+    imageUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
     publishDate: daysFromNow(-1),
     expiryDate: daysFromNow(5),
   },

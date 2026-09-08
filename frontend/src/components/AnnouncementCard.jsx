@@ -11,6 +11,8 @@ import {
 import { formatRelativeToNow } from "../utils/formatDate";
 import { useBookmarks } from "../context/BookmarksContext";
 import { useToast } from "../context/ToastContext";
+import MediaDisplay from "./MediaDisplay";
+import { getMediaSummary } from "../utils/mediaHelpers";
 
 export default function AnnouncementCard({ announcement, variant = "default" }) {
   const isHighPriority = announcement.priority === "High";
@@ -20,6 +22,7 @@ export default function AnnouncementCard({ announcement, variant = "default" }) 
   const { addToast } = useToast();
 
   const isBookmarked = isAnnouncementBookmarked(announcement._id);
+  const mediaSummary = getMediaSummary(announcement);
 
   const handleShare = (e) => {
     e.preventDefault();
@@ -98,6 +101,20 @@ export default function AnnouncementCard({ announcement, variant = "default" }) 
             </button>
           </div>
         </div>
+
+        {/* Optional Media Preview Banner */}
+        {mediaSummary.hasMedia && (
+          <Link to={`/announcements/${announcement._id}`} className="block mb-4 overflow-hidden rounded-xl">
+            <MediaDisplay
+              mediaType={mediaSummary.mediaType}
+              imageUrl={mediaSummary.imageUrl}
+              videoUrl={mediaSummary.videoUrl}
+              title={announcement.title}
+              mode="card"
+              className="w-full h-40 rounded-xl"
+            />
+          </Link>
+        )}
 
         {/* 2. TITLE */}
         <Link to={`/announcements/${announcement._id}`} className="block group-hover:text-red-600 transition-colors">
